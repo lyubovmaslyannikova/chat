@@ -16,7 +16,7 @@ function receiveRooms(rooms) {
 	return {
 		type: RECEIVE_ROOMS,
 		payload: {
-			rooms: rooms
+			rooms
 		}
 	};
 }
@@ -26,7 +26,7 @@ export function fetchRooms() {
 		dispatch(requestRooms());
 
 		return axiosInst.get('/rooms')
-			.then((response) => {
+			.then(response => {
 				dispatch(receiveRooms(response.data));
 			});
 	}
@@ -37,7 +37,7 @@ function updateActiveRoomId(id) {
 	return {
 		type: UPDATE_ACTIVE_ROOM_ID,
 		payload: {
-			id: id
+			id
 		}
 	};
 }
@@ -47,7 +47,7 @@ export function handleRoomInput(name) {
 	return {
 		type: SET_ROOM_INPUT,
 		payload: {
-			name: name
+			name
 		}
 	}
 }
@@ -66,8 +66,6 @@ export function createRoom(name) {
 		})
 		.then(() => {
 			dispatch(resetRoomInput());
-		})
-		.then(() => {
 			dispatch(fetchRooms());
 		});
 	}
@@ -78,8 +76,6 @@ export function removeRoom(id) {
 		return axiosInst.delete('/rooms/' + id)
 			.then(() => {
 				dispatch(updateActiveRoomId());
-			})
-			.then(() => {
 				dispatch(fetchRooms());
 			});
 	}
@@ -99,7 +95,7 @@ function receiveMessages(messages) {
 	return {
 		type: RECEIVE_MESSAGES,
 		payload: {
-			messages: messages
+			messages
 		}
 	};
 }
@@ -109,7 +105,7 @@ export function fetchMessages(id) {
 		dispatch(requestMessages());
 
 		return axiosInst.get('/rooms/' + id)
-			.then((response) => {
+			.then(response => {
 				dispatch(receiveMessages(response.data));
 			});
 	}
