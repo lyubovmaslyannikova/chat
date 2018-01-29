@@ -1,12 +1,9 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import { createRoom, handleRoomInput } from '../actions'
-
+import React, { Component } from 'react';
 import { Form, Button } from 'semantic-ui-react';
 
-class AddRoomForm extends React.Component {
-	createRoom = (e) => {
-		const name = this.props.newRoomName.trim();
+export default class AddRoomForm extends Component {
+	handleRoomСreation = e => {
+		const name = this.props.inputValue.trim();
 
 		if (name.length) {
 			this.props.createRoom(name);
@@ -15,31 +12,26 @@ class AddRoomForm extends React.Component {
 		e.preventDefault();
 	}
 
-	handleChange = (e) => {
-		this.props.handleRoomInput(e.target.value);
-	}
-
 	render() {
 		return (
-			<Form onSubmit={this.createRoom}>
+			<Form onSubmit={this.handleRoomСreation}>
 				<Form.Field>
-					<Form.Input icon='write' value={this.props.newRoomName} placeholder='Room...' onChange={this.handleChange} />
+					<Form.Input
+						icon='write'
+						value={this.props.inputValue}
+						placeholder='Room...'
+						onChange={e => this.props.handleRoomInput(e.target.value)}
+					/>
 				</Form.Field>
 				<Form.Field>
-					<Button content='Create' type='submit' color='teal' fluid />
+					<Button
+						content='Create'
+						type='submit'
+						color='teal'
+						fluid
+					/>
 				</Form.Field>
 			</Form>
 		);
 	}
 }
-
-function mapStateToProps(state) {
-	return state.rooms;
-}
-
-const mapDispatchToProps = {
-	createRoom,
-	handleRoomInput
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(AddRoomForm);

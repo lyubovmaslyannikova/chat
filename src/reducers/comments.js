@@ -1,28 +1,27 @@
 import {
-	REQUEST_MESSAGES,
-	RECEIVE_MESSAGES
-} from '../actions';
+	RECEIVE_MESSAGES,
+	SET_MESSAGE_INPUT,
+} from '../actions/actionTypes';
 
 const initialState = {
-	isFetching: false,
+	inputValue: '',
 	messages: []
 };
 
 function comments(state = initialState, action) {
 
 	switch(action.type) {
-		case REQUEST_MESSAGES:
-			return {
-				...state,
-				isFetching: true
-			};
-
 		case RECEIVE_MESSAGES:
 			return {
 				...state,
-				isFetching: false,
 				messages: action.payload.messages
-			}
+			};
+
+		case SET_MESSAGE_INPUT:
+			return {
+				...state,
+				inputValue: action.payload.message || ''
+			};
 
 		default:
 			return state;

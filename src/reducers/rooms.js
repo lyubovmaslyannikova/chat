@@ -2,14 +2,13 @@ import {
 	REQUEST_ROOMS,
 	RECEIVE_ROOMS,
 	SET_ROOM_INPUT,
-	RESET_ROOM_INPUT,
-	UPDATE_ACTIVE_ROOM_ID
-} from '../actions';
+	SELECT_ROOM
+} from '../actions/actionTypes';
 
 const initialState = {
 	isFetching: false,
-	newRoomName: '',
-	activeRoomID: null,
+	inputValue: '',
+	activeRoomId: null,
 	rooms: []
 };
 
@@ -32,19 +31,13 @@ function rooms(state = initialState, action) {
 		case SET_ROOM_INPUT:
 			return {
 				...state,
-				newRoomName: action.payload.name
+				inputValue: action.payload.name || ''
 			};
 
-		case RESET_ROOM_INPUT:
+		case SELECT_ROOM:
 			return {
 				...state,
-				newRoomName: ''
-			};
-
-		case UPDATE_ACTIVE_ROOM_ID:
-			return {
-				...state,
-				activeRoomID: action.payload.id || null
+				activeRoomId: action.payload.id || null
 			};
 
 		default:

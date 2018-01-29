@@ -1,20 +1,15 @@
-import axios from 'axios';
+import axios from '../utils/axios';
+import * as types from './actionTypes';
 
-let axiosInst = axios.create({
-	baseURL: 'http://localhost:3000',
-});
-
-export const REQUEST_ROOMS = 'chat/REQUEST_ROOMS';
 function requestRooms() {
 	return {
-		type: REQUEST_ROOMS
+		type: types.REQUEST_ROOMS
 	};
 }
 
-export const RECEIVE_ROOMS = 'chat/RECEIVE_ROOMS';
 function receiveRooms(rooms) {
 	return {
-		type: RECEIVE_ROOMS,
+		type: types.RECEIVE_ROOMS,
 		payload: {
 			rooms
 		}
@@ -25,89 +20,116 @@ export function fetchRooms() {
 	return dispatch => {
 		dispatch(requestRooms());
 
-		return axiosInst.get('/rooms')
+		return axios.get('/rooms')
 			.then(response => {
 				dispatch(receiveRooms(response.data));
 			});
 	}
 }
 
-export const UPDATE_ACTIVE_ROOM_ID = 'chat/UPDATE_ACTIVE_ROOM_ID';
-function updateActiveRoomId(id) {
+function selectRoom(id) {
 	return {
-		type: UPDATE_ACTIVE_ROOM_ID,
+		type: types.SELECT_ROOM,
 		payload: {
 			id
 		}
 	};
 }
 
-export const SET_ROOM_INPUT = 'chat/SET_ROOM_INPUT';
 export function handleRoomInput(name) {
 	return {
-		type: SET_ROOM_INPUT,
+		type: types.SET_ROOM_INPUT,
 		payload: {
 			name
 		}
 	}
 }
 
-export const RESET_ROOM_INPUT = 'chat/RESET_ROOM_INPUT';
-function resetRoomInput() {
-	return {
-		type: RESET_ROOM_INPUT
-	};
-}
-
 export function createRoom(name) {
 	return dispatch => {
-		return axiosInst.post('/rooms', {
-			name: name
+		return axios.post('/rooms', {
+			name
 		})
 		.then(() => {
-			dispatch(resetRoomInput());
+			dispatch(handleRoomInput());
 			dispatch(fetchRooms());
 		});
 	}
 }
 
 export function removeRoom(id) {
-	return dispatch => {
-		return axiosInst.delete('/rooms/' + id)
+	return (dispatch, getState) => {
+		const state = getState();
+
+		return axios.delete('/rooms/' + id)
 			.then(() => {
-				dispatch(updateActiveRoomId());
+				if (state.rooms.activeRoomId === id){
+					dispatch(selectRoom());
+				}
+
 				dispatch(fetchRooms());
 			});
 	}
 }
 
-//-----------------------------------------
-
-export const REQUEST_MESSAGES = 'chat/REQUEST_MESSAGES';
-function requestMessages() {
-	return {
-		type: REQUEST_MESSAGES
-	};
-}
-
-export const RECEIVE_MESSAGES = 'chat/RECEIVE_MESSAGES';
 function receiveMessages(messages) {
 	return {
-		type: RECEIVE_MESSAGES,
+		type: types.RECEIVE_MESSAGES,
 		payload: {
 			messages
 		}
 	};
 }
 
-export function fetchMessages(id) {
-	return dispatch => {
-		dispatch(requestMessages());
+export function fetchMessages() {
+	return (dispatch, getState) => {
+		const state = getState();
 
-		return axiosInst.get('/rooms/' + id)
+		return axios.get('/rooms/' + state.rooms.activeRoomId)
 			.then(response => {
 				dispatch(receiveMessages(response.data));
 			});
 	}
 }
 
+//TODO
+export function selectRoomAndFetchMessages(id) {
+	return dispatch => {
+		dispatch(selectRoom(id));
+		dispatch(fetchMessages(id));
+	}
+}
+
+export function handleMessageInput(message) {
+	return {
+		type: types.SET_MESSAGE_INPUT,
+		payload: {
+			message
+		}
+	}
+}
+
+export function addReply(message) {
+	return (dispatch, getState) => {
+		const state = getState();
+
+		return axios.post('/messages', {
+				message,
+				user: state.users.id,
+				room: state.rooms.activeRoomId
+			})
+			.then(() => {
+				dispatch(handleMessageInput());
+				dispatch(fetchMessages());
+			});
+	}
+}
+
+export function deleteMessage(id) {
+	return dispatch => {
+		return axios.delete('/messages/' + id)
+			.then(() => {
+				dispatch(fetchMessages());
+			});
+	};
+}

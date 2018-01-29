@@ -1,8 +1,5 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { fetchRooms, removeRoom } from '../actions';
-
-import AddRoomForm from './AddRoomForm';
+import AddRoomForm from '../containers/AddRoomForm';
 import InvertedLoader from './Loader';
 import { Button, Menu } from 'semantic-ui-react';
 
@@ -11,14 +8,34 @@ class RoomsList extends Component {
 		this.props.fetchRooms();
 	}
 
+	removeRoom = (e, id) => {
+		this.props.removeRoom(id);
+		e.stopPropagation();
+	}
+
 	render() {
-		const { rooms, activeRoomID, isFetching } = this.props;
+		const {
+			rooms,
+			isFetching,
+			activeRoomId
+		} = this.props;
 
 		const menuItems = rooms.map(room => {
 			return (
-				<Menu.Item key={room.id} id={room.id} active={activeRoomID === room.id} onClick={this.props.onClick}>
+				<Menu.Item
+					key={room.id}
+					id={room.id}
+					active={activeRoomId === room.id}
+					onClick={() => this.props.selectRoomAndFetchMessages(room.id)}
+				>
 					{room.name}
-					<Button icon='remove' size='mini' floated='right' compact onClick={() => this.props.removeRoom(room.id)} />
+					<Button
+						floated='right'
+						icon='remove'
+						size='mini'
+						compact
+						onClick={e => this.removeRoom(e, room.id)}
+					/>
 				</Menu.Item>
 			);
 		});
@@ -37,13 +54,4 @@ class RoomsList extends Component {
 	}
 }
 
-function mapStateToProps(state) {
-	return state.rooms;
-}
-
-const mapDispatchToProps = {
-	fetchRooms,
-	removeRoom
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(RoomsList);
+export default RoomsList;

@@ -1,13 +1,22 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
+import { Segment, Label, Comment } from 'semantic-ui-react';
 
-import { fetchMessages } from '../actions';
+export default class CommentsList extends Component {
+	constructor(props) {
+		super(props);
 
-import { Segment, Comment } from 'semantic-ui-react';
+		this.timerID = null;
+	}
 
-class CommentsList extends Component {
 	componentDidMount() {
-		this.props.fetchMessages(this.props.activeRoomID);
+		this.timerID = setInterval(
+			() => this.props.fetchMessages(),
+			5000
+		);
+	}
+
+	componentWillUnmount() {
+		clearInterval(this.timerID);
 	}
 
 	render() {
@@ -15,17 +24,24 @@ class CommentsList extends Component {
 
 		return (
 			<Segment basic>
+        <Label as='a' color='orange' ribbon='right'>Specs</Label>
 				<Comment.Group>
-					{messages.map(message => (
+					{messages && messages.map(message => (
 						<Comment key={message.id}>
 							<Comment.Content>
-								<Comment.Author as='a'>{message.username}</Comment.Author>
-								<Comment.Metadata>{formatDate(message.date)}</Comment.Metadata>
+								<Comment.Author as='a'>
+									{message.username}
+								</Comment.Author>
+								<Comment.Metadata>
+									{formatDate(message.date)}
+								</Comment.Metadata>
 								<Comment.Text>
-									{message.content}
+									{message.message}
 								</Comment.Text>
 								<Comment.Actions>
-									<Comment.Action>delete</Comment.Action>
+									<Comment.Action onClick={() => this.props.deleteMessage(message.id)}>
+										delete
+									</Comment.Action>
 								</Comment.Actions>
 							</Comment.Content>
 						</Comment>
@@ -38,25 +54,12 @@ class CommentsList extends Component {
 
 function formatDate(value) {
 	let obj   = new Date(value),
-    date    = obj.getDate(),
-    month   = obj.getMonth(),
-    year    = obj.getFullYear(),
-    minutes = obj.getMinutes(),
-    hours   = obj.getHours(),
-    seconds = obj.getSeconds();
+		date    = obj.getDate(),
+		month   = obj.getMonth(),
+		year    = obj.getFullYear(),
+		minutes = obj.getMinutes(),
+		hours   = obj.getHours(),
+		seconds = obj.getSeconds();
 
 	return `${date}:${month}:${year} ${hours}:${minutes}:${seconds}`;
 }
-
-function mapStateToProps(state) {
-	return {
-		activeRoomID: state.rooms.activeRoomID,
-		comments: state.comments
-	};
-}
-
-const mapDispatchToProps = {
-	fetchMessages
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(CommentsList);
